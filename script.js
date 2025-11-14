@@ -34,13 +34,9 @@ turnoSel.addEventListener("change", () => {
     const turno = turnoSel.value;
     orarioSel.innerHTML = "";
 
-    let orari = [];
-
-    if (turno === "pranzo") {
-        orari = ["12:00", "12:30", "13:00", "13:30", "14:00"];
-    } else if (turno === "cena") {
-        orari = ["19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"];
-    }
+    let orari = turno === "pranzo"
+        ? ["12:00", "12:30", "13:00", "13:30", "14:00"]
+        : ["19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"];
 
     orari.forEach(o => {
         const opt = document.createElement("option");
@@ -59,16 +55,22 @@ document.getElementById("prenotaForm").addEventListener("submit", async (e) => {
         return;
     }
 
+    const giorno = document.getElementById("giorno").value;
+    const ora = orarioSel.value;
+
+    // Correzione: timestamptz valido ISO
+    const quandoISO = new Date(`${giorno}T${ora}:00`).toISOString();
+
     const { data, error } = await supabase
         .from("prenotazioni")
         .insert({
             ristorante_id: "3c235755-63cd-478d-bc56-d00e4d9c9e1b",
             cliente_nome: document.getElementById("cliente_nome").value,
             persone: personeSelezionate,
-            giorno: document.getElementById("giorno").value,
+            giorno: giorno,
             turno: turnoSel.value,
             stato: "in_attesa",
-            quando: `${document.getElementById("giorno").value} ${orarioSel.value}:00`
+            quando: quandoISO
         });
 
     if (error) {
