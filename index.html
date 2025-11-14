@@ -2,115 +2,54 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Prenotazione Tavolo</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: Arial; max-width: 480px; margin: 40px auto; }
-        label { font-weight: bold; }
-        input, select { width:100%; padding:10px; margin:8px 0; }
-        button { padding:12px; background:#000; color:#fff; border:none; cursor:pointer; width:100%; }
-        .success { color: green; margin-top: 15px; }
-        .error { color: red; margin-top: 15px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenotazione Ristorante</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+    <div class="container">
+        <h1>Prenota un Tavolo</h1>
 
-<h2>Prenota un tavolo</h2>
+        <form id="prenotaForm">
+            
+            <!-- Nome Cliente -->
+            <label>Nome e Cognome</label>
+            <input type="text" id="cliente_nome" required>
 
-<form id="form">
-    <label>Nome</label>
-    <input type="text" id="nome" required>
+            <!-- Selettore Persone -->
+            <label>Numero di Persone</label>
+            <div id="personeSelector" class="persone-grid"></div>
 
-    <label>Numero persone</label>
-    <input type="number" id="persone" min="1" required>
+            <!-- Data -->
+            <label>Data</label>
+            <input type="date" id="giorno" required>
 
-    <label>Data</label>
-    <input type="date" id="giorno" required>
+            <!-- Turno -->
+            <label>Turno</label>
+            <select id="turno" required>
+                <option value="">Seleziona...</option>
+                <option value="pranzo">Pranzo</option>
+                <option value="cena">Cena</option>
+            </select>
 
-    <label>Turno</label>
-    <select id="turno" required onchange="updateOrari()">
-        <option value="">Seleziona turno</option>
-        <option value="pranzo">Pranzo</option>
-        <option value="cena">Cena</option>
-    </select>
+            <!-- Orario dinamico -->
+            <label>Orario</label>
+            <select id="orario" required></select>
 
-    <label>Orario</label>
-    <select id="orario" required>
-        <option value="">Seleziona orario</option>
-    </select>
+            <button type="submit" class="btn">Invia Prenotazione</button>
+        </form>
+    </div>
 
-    <button type="submit">Invia prenotazione</button>
-</form>
+    <!-- Schermata Successo -->
+    <div id="successOverlay">
+        <div class="successBox">
+            <h2>🎉 Prenotazione inviata!</h2>
+            <p>Riceverai una mail quando il ristorante confermerà la tua richiesta.</p>
+        </div>
+    </div>
 
-<div id="message"></div>
-
-<script>
-    // === CONFIG SUPABASE ===
-    const SUPABASE_URL = "https://wvbgpnepliihplacnlmp.supabase.co";
-    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2YmdwbmVwbGlpaHBsYWNubG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODU0OTUsImV4cCI6MjA2OTY2MTQ5NX0.EkTXvzCacTTqknOZhZrzBU7Ml0RzVHnrOIS2x1dRBBI";
-
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-    const RISTORANTE_ID = "3c235755-63cd-478d-bc56-d00e4d9c9e1b";
-
-    // ===== ORARI PER TURNO =====
-    const orariPranzo = ["12:00","12:30","13:00","13:30","14:00"];
-    const orariCena   = ["19:00","19:30","20:00","20:30","21:00","21:30","22:00"];
-
-    function updateOrari() {
-        const turno = document.getElementById("turno").value;
-        const orarioSel = document.getElementById("orario");
-
-        orarioSel.innerHTML = '<option value="">Seleziona orario</option>';
-
-        const list = turno === "pranzo" ? orariPranzo :
-                     turno === "cena"   ? orariCena : [];
-
-        list.forEach(o => {
-            const opt = document.createElement("option");
-            opt.value = o;
-            opt.textContent = o;
-            orarioSel.appendChild(opt);
-        });
-    }
-
-    // ===== SUBMIT FORM =====
-    document.getElementById("form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const message = document.getElementById("message");
-        message.innerHTML = "";
-
-        const nome = document.getElementById("nome").value;
-        const persone = document.getElementById("persone").value;
-        const giorno = document.getElementById("giorno").value;
-        const turno = document.getElementById("turno").value;
-        const orario = document.getElementById("orario").value;
-
-        // crea campo "quando" → data + ora
-        const quando = new Date(`${giorno}T${orario}:00`).toISOString();
-
-        const { data, error } = await supabaseClient
-            .from("prenotazioni")
-            .insert([
-                {
-                    ristorante_id: RISTORANTE_ID,
-                    cliente_nome: nome,
-                    persone: parseInt(persone),
-                    giorno: giorno,
-                    turno: turno,
-                    quando: quando,
-                    stato: "in_attesa"
-                }
-            ]);
-
-        if (error) {
-            message.innerHTML = `<p class="error">Errore: ${error.message}</p>`;
-        } else {
-            message.innerHTML = `<p class="success">Prenotazione inviata! Ti ricontatteremo a breve.</p>`;
-            document.getElementById("form").reset();
-        }
-    });
-</script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
 </body>
 </html>
