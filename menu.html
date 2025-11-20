@@ -1,21 +1,24 @@
+<!-- 1️⃣ Carica la libreria Supabase PRIMA di tutto -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <script>
-  // CONFIGURA QUI I TUOI DATI SUPABASE
+  // 2️⃣ Poi puoi inizializzare Supabase
   const SUPABASE_URL = "https://wvbgpnepliihplacnlmp.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2YmdwbmVwbGlpaHBsYWNubG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODU0OTUsImV4cCI6MjA2OTY2MTQ5NX0.EkTXvzCacTTqknOZhZrzBU7Ml0RzVHnrOIS2x1dRBBI";
 
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function loadMenu() {
     const container = document.getElementById("menu-container");
 
-    // 1️⃣ Leggi categorie ordinate
-    const { data: categories, error: catErr } = await supabase
+    // Leggi categorie
+    const { data: categories, error: catErr } = await client
       .from("categorie_menu")
       .select("*")
       .order("ordinamento", { ascending: true });
 
-    // 2️⃣ Leggi tutti i piatti
-    const { data: items, error: itemErr } = await supabase
+    // Leggi piatti
+    const { data: items, error: itemErr } = await client
       .from("piatti")
       .select("*")
       .order("nome", { ascending: true });
@@ -28,13 +31,14 @@
 
     container.innerHTML = "";
 
-    // 3️⃣ Stampa categorie e piatti
+    // Stampa categorie
     categories.forEach(cat => {
       const catEl = document.createElement("div");
       catEl.className = "category";
       catEl.textContent = cat.nome;
       container.appendChild(catEl);
 
+      // Stampa piatti della categoria
       items
         .filter(i => i.categoria_id === cat.id)
         .forEach(i => {
