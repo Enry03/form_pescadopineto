@@ -27,35 +27,41 @@
     }
   </style>
 
-  <!-- Libreria Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- Libreria Supabase compatibile con HTML statico -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.js"></script>
+
 </head>
 
 <body>
   <h1>Menù</h1>
 
-  <!-- QUI AGGIUNGIAMO IL CONTAINER -->
   <div id="menu-container">Caricamento in corso...</div>
 
-  <!-- SCRIPT DEL MENÙ -->
   <script>
     const SUPABASE_URL = "https://wvbgpnepliihplacnlmp.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2YmdwbmVwbGlpaHBsYWNubG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODU0OTUsImV4cCI6MjA2OTY2MTQ5NX0.EkTXvzCacTTqknOZhZrzBU7Ml0RzVHnrOIS2x1dRBBI";
 
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // ⚠️ IMPORTANTE: usare window.supabase
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function loadMenu() {
       const container = document.getElementById("menu-container");
 
-      const { data: categories } = await client
+      const { data: categories, error: catErr } = await client
         .from("categorie_menu")
         .select("*")
         .order("ordinamento", { ascending: true });
 
-      const { data: items } = await client
+      const { data: items, error: itemErr } = await client
         .from("piatti")
         .select("*")
         .order("nome", { ascending: true });
+
+      if (catErr || itemErr) {
+        container.innerHTML = "Errore nel caricamento del menù.";
+        console.error(catErr || itemErr);
+        return;
+      }
 
       container.innerHTML = "";
 
