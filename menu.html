@@ -41,7 +41,6 @@
     const SUPABASE_URL = "https://wvbgpnepliihplacnlmp.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2YmdwbmVwbGlpaHBsYWNubG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODU0OTUsImV4cCI6MjA2OTY2MTQ5NX0.EkTXvzCacTTqknOZhZrzBU7Ml0RzVHnrOIS2x1dRBBI";
 
-    // ⚠️ IMPORTANTE: usare window.supabase
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function loadMenu() {
@@ -57,9 +56,12 @@
         .select("*")
         .order("nome", { ascending: true });
 
+      // 🔥 DEBUG
+      console.log("Categorie:", categories, "Errore categorie:", catErr);
+      console.log("Piatti:", items, "Errore piatti:", itemErr);
+
       if (catErr || itemErr) {
         container.innerHTML = "Errore nel caricamento del menù.";
-        console.error(catErr || itemErr);
         return;
       }
 
