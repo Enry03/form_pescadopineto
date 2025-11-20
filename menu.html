@@ -1,85 +1,53 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Menù</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body { font-family: sans-serif; padding: 20px; background:#fafafa; }
-    h1 { text-align:center; }
-    .item {
-      background: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .price { float:right; font-weight:bold; }
-    .category {
-      margin-top: 30px;
-      font-size: 1.3rem;
-      font-weight: bold;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 5px;
-    }
-  </style>
-</head>
+<script>
+  // CONFIGURA QUI I TUOI DATI SUPABASE
+  const SUPABASE_URL = "https://wvbgpnepliihplacnlmp.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2YmdwbmVwbGlpaHBsYWNubG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODU0OTUsImV4cCI6MjA2OTY2MTQ5NX0.EkTXvzCacTTqknOZhZrzBU7Ml0RzVHnrOIS2x1dRBBI";
 
-<body>
-  <h1>Menù</h1>
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  <div id="menu-container">Caricamento in corso...</div>
+  async function loadMenu() {
+    const container = document.getElementById("menu-container");
 
-  <script>
-    // 🔧 CONFIGURA QUI I TUOI DATI SUPABASE
-    const SUPABASE_URL = "https://wvbgpnepliihplacnlmp.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2YmdwbmVwbGlpaHBsYWNubG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODU0OTUsImV4cCI6MjA2OTY2MTQ5NX0.EkTXvzCacTTqknOZhZrzBU7Ml0RzVHnrOIS2x1dRBBI";
+    // 1️⃣ Leggi categorie ordinate
+    const { data: categories, error: catErr } = await supabase
+      .from("categorie_menu")
+      .select("*")
+      .order("ordinamento", { ascending: true });
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // 2️⃣ Leggi tutti i piatti
+    const { data: items, error: itemErr } = await supabase
+      .from("piatti")
+      .select("*")
+      .order("nome", { ascending: true });
 
-    async function loadMenu() {
-      const container = document.getElementById("menu-container");
-
-      // Leggi categorie ordinate
-      const { data: categories } = await supabase
-        .from("categories")
-        .select("*")
-        .order("sort_order", { ascending: true });
-
-      // Leggi piatti disponibili
-      const { data: items } = await supabase
-        .from("menu_items")
-        .select("*")
-        .eq("available", true)
-        .order("category")
-        .order("name");
-
-      container.innerHTML = "";
-
-      categories.forEach(cat => {
-        const catEl = document.createElement("div");
-        catEl.className = "category";
-        catEl.textContent = cat.name;
-        container.appendChild(catEl);
-
-        items
-          .filter(i => i.category === cat.id)
-          .forEach(i => {
-            const el = document.createElement("div");
-            el.className = "item";
-            el.innerHTML = `
-              <strong>${i.name}</strong>
-              <span class="price">€ ${i.price.toFixed(2)}</span>
-              <br />
-              <small>${i.description || ""}</small>
-            `;
-            container.appendChild(el);
-          });
-      });
+    if (catErr || itemErr) {
+      container.innerHTML = "Errore nel caricamento del menù.";
+      console.error(catErr || itemErr);
+      return;
     }
 
-    loadMenu();
-  </script>
-</body>
-</html>
+    container.innerHTML = "";
+
+    // 3️⃣ Stampa categorie e piatti
+    categories.forEach(cat => {
+      const catEl = document.createElement("div");
+      catEl.className = "category";
+      catEl.textContent = cat.nome;
+      container.appendChild(catEl);
+
+      items
+        .filter(i => i.categoria_id === cat.id)
+        .forEach(i => {
+          const el = document.createElement("div");
+          el.className = "item";
+          el.innerHTML = `
+            <strong>${i.nome}</strong>
+            <span class="price">€ ${i.prezzo.toFixed(2)}</span>
+          `;
+          container.appendChild(el);
+        });
+    });
+  }
+
+  loadMenu();
+</script>
