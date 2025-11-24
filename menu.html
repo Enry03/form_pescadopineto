@@ -15,7 +15,14 @@
       margin: auto;
     }
 
-    /* Pulsanti categoria */
+    /* Logo */
+    .logo {
+      width: 220px;
+      margin: 0 auto 30px auto;
+      display: block;
+    }
+
+    /* Pulsante categoria */
     .category-btn {
       width: 100%;
       background: #0C2B4E;
@@ -35,11 +42,11 @@
       background: #0a2240;
     }
 
-    /* Contenitore dei piatti */
+    /* Contenitore animato */
     .category-content {
-      display: none;
-      margin-top: 10px;
-      margin-bottom: 20px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.35s ease;
     }
 
     .item {
@@ -53,21 +60,23 @@
     .price {
       float: right;
       font-weight: bold;
-      color: #000;
     }
   </style>
 
-  <!-- Libreria Supabase compatibile con HTML statico -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.js"></script>
 </head>
 
 <body>
 
+  <!-- LOGO -->
+  <img src="Logo_Pescado.webp" class="logo" alt="Logo Pescado">
+
   <div id="menu-container">Caricamento in corso...</div>
 
   <script>
     const SUPABASE_URL = "https://wvbgpnepliihplacnlmp.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2YmdwbmVwbGlpaHBsYWNubG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODU0OTUsImV4cCI6MjA2OTY2MTQ5NX0.EkTXvzCacTTqknOZhZrzBU7Ml0RzVHnrOIS2x1dRBBI";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2YmdwbmVwbGlpaHBsYWNubG1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwODU0OTUsImV4cCI6MjA2OTY2MTQ5NX0.EkTXvzCacTTqknOZhZrzBU7Ml0RzVHnrOIS2x1dRBBI";
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -87,16 +96,13 @@
       container.innerHTML = "";
 
       categories.forEach(cat => {
-        // Pulsante categoria
         const btn = document.createElement("button");
         btn.className = "category-btn";
         btn.textContent = cat.nome;
 
-        // Contenitore piatti
         const content = document.createElement("div");
         content.className = "category-content";
 
-        // Render piatti
         items
           .filter(i => i.categoria_id === cat.id)
           .forEach(i => {
@@ -109,15 +115,19 @@
             content.appendChild(el);
           });
 
-        // Click category
+        // Animazione apertura/chiusura
         btn.addEventListener("click", () => {
-          // Chiudi tutte le altre categorie
           document.querySelectorAll(".category-content").forEach(c => {
-            if (c !== content) c.style.display = "none";
+            if (c !== content) {
+              c.style.maxHeight = "0"; // chiudi gli altri
+            }
           });
 
-          // Toggle questa categoria
-          content.style.display = content.style.display === "block" ? "none" : "block";
+          if (content.style.maxHeight && content.style.maxHeight !== "0px") {
+            content.style.maxHeight = "0";
+          } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+          }
         });
 
         container.appendChild(btn);
