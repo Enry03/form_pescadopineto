@@ -6,26 +6,64 @@
   <title>Menù</title>
 
   <style>
-    body { font-family: sans-serif; padding: 20px; background:#fafafa; }
-    .item {
-      background: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .category {
-      margin-top: 30px;
-      font-size: 1.3rem;
-      font-weight: bold;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 5px;
-    }
-    .price {
-      float:right;
-      font-weight:bold;
-    }
-  </style>
+  body {
+    font-family: "Inter", sans-serif;
+    padding: 25px;
+    background: #f7f7f7;
+    color: #333;
+    max-width: 680px;
+    margin: auto;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    margin-bottom: 25px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .category {
+    margin-top: 40px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #005d7a;
+    border-bottom: 2px solid #005d7a22;
+    padding-bottom: 4px;
+  }
+
+  .item {
+    background: #ffffff;
+    padding: 18px;
+    margin: 12px 0;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    transition: transform 0.1s ease;
+  }
+
+  .item:hover {
+    transform: scale(1.01);
+  }
+
+  .price {
+    float: right;
+    font-weight: bold;
+    color: #005d7a;
+  }
+
+  .description {
+    font-size: 0.9rem;
+    color: #444;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  .allergens {
+    font-size: 0.8rem;
+    color: #777;
+    margin-top: 4px;
+  }
+</style>
+
 
   <!-- Libreria Supabase compatibile con HTML statico -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.js"></script>
@@ -73,17 +111,18 @@
         catEl.textContent = cat.nome;
         container.appendChild(catEl);
 
-        items
-          .filter(i => i.categoria_id === cat.id)
-          .forEach(i => {
-            const el = document.createElement("div");
-            el.className = "item";
-            el.innerHTML = `
-              <strong>${i.nome}</strong>
-              <span class="price">€ ${i.prezzo.toFixed(2)}</span>
-            `;
-            container.appendChild(el);
-          });
+                items
+                .filter(i => i.categoria_id === cat.id)
+                .forEach(i => {
+                    const el = document.createElement("div");
+                    el.className = "item";
+                    el.innerHTML = `
+                    <strong>${i.nome}</strong>
+                    <span class="price">€ ${i.prezzo.toFixed(2)}</span>
+                    `;
+                    container.appendChild(el);
+                });
+
       });
     }
 
